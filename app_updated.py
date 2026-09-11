@@ -79,53 +79,54 @@ if submitted:
         "land_cover": land_cover,
         "state": state
     }])
-    
 
     # Safety check: road distance is NOT part of this model.
     expected = set(NUMERIC + CATEGORICAL)
+
     if set(row.columns) != expected:
         st.error("Input/model feature mismatch.")
         st.stop()
 
+    # Model prediction
     score = float(model.predict_proba(row)[0, 1])
 
     # Risk classification
-if score < 0.25:
-    level = "GREEN — Low"
-    risk_color = "#22c55e"
-elif score < 0.50:
-    level = "YELLOW — Moderate"
-    risk_color = "#eab308"
-elif score < 0.75:
-    level = "ORANGE — High"
-    risk_color = "#f97316"
-else:
-    level = "RED — Very High"
-    risk_color = "#ef4444"
+    if score < 0.25:
+        level = "GREEN — Low"
+        risk_color = "#22c55e"
+    elif score < 0.50:
+        level = "YELLOW — Moderate"
+        risk_color = "#eab308"
+    elif score < 0.75:
+        level = "ORANGE — High"
+        risk_color = "#f97316"
+    else:
+        level = "RED — Very High"
+        risk_color = "#ef4444"
 
-st.subheader("PRISM Susceptibility Result")
+    st.subheader("PRISM Susceptibility Result")
 
-# Colored risk box
-st.markdown(
-    f"""
-    <div style="
-        background-color: {risk_color};
-        color: white;
-        padding: 20px;
-        border-radius: 12px;
-        text-align: center;
-        font-size: 30px;
-        font-weight: 700;
-        margin: 15px 0;
-    ">
-        {level}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+    # Colored risk box
+    st.markdown(
+        f"""
+        <div style="
+            background-color: {risk_color};
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 30px;
+            font-weight: 700;
+            margin: 15px 0;
+        ">
+            {level}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-st.metric("Model Score", f"{score:.1%}")
+    st.metric("Model Score", f"{score:.1%}")
 
-st.caption(
-    "Prototype model score; not a calibrated operational warning probability."
-)
+    st.caption(
+        "Prototype model score; not a calibrated operational warning probability."
+    )
